@@ -333,7 +333,7 @@ def _coarse_centers(bounds, n=3):
             clon = west  + (j + 0.5) * lon_step
             centers.append((clat, clon))
             cells.append(((south + i*lat_step, west + j*lon_step),
-                          (south + (i+1)*lat_step, west + (j+1)*lon_step)))
+                          (south + (i+1)*lat_step, west + (j+1)*lat_step)))
     return centers, cells
 
 def _gen_fine_points_for_cell(cell_bounds, step):
@@ -462,6 +462,22 @@ app.index_string = """
 <style>
   html,body,#_dash-app-content{height:100%;margin:0;overflow:hidden}
   .leaflet-control-container .leaflet-bottom.leaflet-left{margin-bottom:.5rem;margin-left:.5rem}
+
+  /* ====== 新增：搜尋此區域按鈕的響應式定位（避免被面板遮住） ====== */
+  .search-area-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    top:calc(max(1rem, env(safe-area-inset-top)) + .5rem); /* 預設：頂部置中 */
+    z-index:1200; /* 高於面板(1002)與 dcc.Loading */
+  }
+  /* 手機寬度：移到底部置中，避開 Safari 底部工具列與 safe area */
+  @media (max-width: 480px){
+    .search-area-btn{
+      top:auto;
+      bottom:calc(max(1rem, env(safe-area-inset-bottom)) + 3.25rem);
+    }
+  }
 </style>
 </head><body>{%app_entry%}<footer>{%config%}{%scripts%}{%renderer%}</footer></body></html>
 """
@@ -495,13 +511,16 @@ map_with_listener = EventListener(id="loc_listener", events=loc_events, children
 
 map_container = html.Div([
     dcc.Loading(children=[map_with_listener]),
+    # ====== 變更點：按鈕改用 className 控制定位（移除 inline top/left/transform/zIndex） ======
     dbc.Button(
-        id="search-area-button", n_clicks=0, color="light", className="shadow-sm",
+        id="search-area-button", n_clicks=0, color="light",
+        className="search-area-btn shadow-sm",
         children=I18N["zh"]["search_here"],
-        style={"position":"absolute","top":"0.5rem","left":"50%","transform":"translateX(-50%)",
-               "zIndex":"1001","backgroundColor":"rgba(255,255,255,0.95)","border":"1px solid #d0d7de",
-               "color":"#334155","padding":"0.38rem 0.8rem","fontSize":"0.95rem",
-               "minWidth":"160px","whiteSpace":"nowrap","borderRadius":"0.5rem"}
+        style={
+            "backgroundColor":"rgba(255,255,255,0.95)","border":"1px solid #d0d7de",
+            "color":"#334155","padding":"0.38rem 0.8rem","fontSize":"0.95rem",
+            "minWidth":"160px","whiteSpace":"nowrap","borderRadius":"0.5rem"
+        }
     )
 ], style={"position":"relative","width":"100vw","height":"100vh"})
 
@@ -817,7 +836,7 @@ def main_renderer(action, basemap_mode, bounds, zoom, counters):
             loc_data, no_update, _inc_finished(counters))
 
 # --------------------------- 入口 ---------------------------
-server = app.server  # ✅ 加這一行，給 gunicorn 用！
+server = app.server  # ✅ 給 gunicorn 用
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", "8050"))
