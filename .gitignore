@@ -1,0 +1,23 @@
+# Python 編譯檔與暫存檔
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+
+# 虛擬環境
+venv/
+
+# macOS 系統檔
+.DS_Store
+
+# VS Code 設定（如果有用 VS Code）
+.vscode/
+
+# Jupyter 檔案暫存
+.ipynb_checkpoints/
+
+# 環境變數檔案
+.env
+
