@@ -817,6 +817,8 @@ def main_renderer(action, basemap_mode, bounds, zoom, counters):
             loc_data, no_update, _inc_finished(counters))
 
 # --------------------------- 入口 ---------------------------
+server = app.server  # ✅ 加這一行，給 gunicorn 用！
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", "8050"))
     app.run(debug=True, port=port, use_reloader=False)
