@@ -21,3 +21,7 @@ venv/
 # 環境變數檔案
 .env
 
+
+.env
+*.env
+.env.*.local
